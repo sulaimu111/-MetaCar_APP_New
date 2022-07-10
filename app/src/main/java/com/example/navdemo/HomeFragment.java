@@ -7,20 +7,29 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
 
     Button button;
+    String choice, choice1, choice2, choice3;
+    EditText editTextName;
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -76,14 +85,99 @@ public class HomeFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        button = getView().findViewById(R.id.button);
+        Spinner spinner1, spinner2, spinner3;
+
+
+        spinner1 = getView().findViewById(R.id.spinner1);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(), R.array.spinner1, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner1.setAdapter(adapter);
+        spinner1.setOnItemSelectedListener(this);
+
+        spinner2 = getView().findViewById(R.id.spinner2);
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getActivity(), R.array.spinner2, android.R.layout.simple_spinner_item);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner2.setAdapter(adapter2);
+        spinner2.setOnItemSelectedListener(this);
+
+        spinner3 = getView().findViewById(R.id.spinner3);
+        ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(getActivity(), R.array.spinner3, android.R.layout.simple_spinner_item);
+        adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner3.setAdapter(adapter3);
+        spinner3.setOnItemSelectedListener(this);
+
+        editTextName = getView().findViewById(R.id.editTextName);
+
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+        choice = adapterView.getItemAtPosition(i).toString();
+
+        try {
+            if(choice.equals("溝壩國小") || choice.equals("斗南國小")){
+                choice1 = choice;
+//                Log.d("Debug", "choice1");
+            }
+            else if(choice.equals("三年級") || choice.equals("四年級") || choice.equals("五年級")){
+                choice2 = choice;
+//                Log.d("Debug", "choice2");
+            }
+            else if(choice.equals("甲") || choice.equals("乙") || choice.equals("丙") || choice.equals("丁") || choice.equals("戊") || choice.equals("己")){
+                choice3 = choice;
+//                Log.d("Debug", "choice3");
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+//        bundle.putString("grade", choice2);
+//        bundle.putString("class", choice3);
+        try {
+//            Log.d("Debug", "school = " + choice1.getClass().getSimpleName());
+//            Log.d("Debug", "school = " + choice1);
+
+//            Log.d("Debug", "grade = " + choice2);
+//            Log.d("Debug", "class = " + choice3);
+//            Log.d("Debug", String.valueOf(adapterView.getId()));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        button = getView().findViewById(R.id.submit_btn);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NavController controller = Navigation.findNavController(view);
-                controller.navigate(R.id.action_homeFragment2_to_detailFragment2);
+                if(editTextName.getText().toString().isEmpty()){
+                    editTextName.setError("請輸入Name！");
+//                    Log.d("Debug", choice1);
+//                    Log.d("Debug", choice2);
+//                    Log.d("Debug", choice3);
+                }
+                else if(choice1 == null || choice2 == null || choice3 == null){
+                    Log.d("Debug", "請選擇項目");
+                }
+                else{
+                    Bundle bundle = new Bundle();
+                    bundle.putString("school", choice1);
+                    bundle.putString("grade", choice2);
+                    bundle.putString("class", choice3);
+                    bundle.putString("name", editTextName.getText().toString());
+                    NavController controller = Navigation.findNavController(view);
+                    controller.navigate(R.id.action_homeFragment2_to_detailFragment2, bundle);
+                }
+
             }
         });
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

@@ -14,4 +14,27 @@
     <string name="TextView1">Where do you want to go?</string>
     <string name="TextView2" />
     <string name="editText2" >.</string>
+    <string name="name">.</string>
+    <string name="submit">Submit</string>
+    <!--    <string name="spinner">a</string>-->
+    <string-array name="spinner1">
+        <item>請選擇項目</item>
+        <item>溝壩國小</item>
+        <item>斗南國小</item>
+    </string-array>
+    <string-array name="spinner2">
+        <item>請選擇項目</item>
+        <item>三年級</item>
+        <item>四年級</item>
+        <item>五年級</item>
+    </string-array>
+    <string-array name="spinner3">
+        <item>請選擇項目</item>
+        <item>甲</item>
+        <item>乙</item>
+        <item>丙</item>
+        <item>丁</item>
+        <item>戊</item>
+        <item>己</item>
+    </string-array>
 </resources>

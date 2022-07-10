@@ -72,6 +72,7 @@ public class DetailFragment extends Fragment {
     String carBot_Ip = "http://140.125.32.145:5000/carbot";
     TextToSpeech textToSpeech;
     String nowDate;
+    String student_school, student_grade, student_class;
 
     private static final int RECOGNIZER_RESULT = 1;
     //    private static final String TAG = "MyAppTag";
@@ -203,33 +204,33 @@ public class DetailFragment extends Fragment {
 
                             //POST_TO_Jetson_Xavier-------------------------------------------------------------
 
-                            JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            System.out.println(response);
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    System.out.println(error);
-                                }
-                            }){
-                                @Override
-                                public byte[] getBody() {
-                                    JSONObject jsonBody3 = new JSONObject();
-                                    try {
-                                        jsonBody3.put("target", targetText);
-//                                        jsonBody3.put("user", "bot01");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    String requestBody2 = jsonBody3.toString();
-                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
-                                }
-                            };
-
-                            queue.add(stringRequest_jsonXavier);
+//                            JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
+//                                    new Response.Listener<JSONObject>() {
+//                                        @Override
+//                                        public void onResponse(JSONObject response) {
+//                                            System.out.println(response);
+//                                        }
+//                                    }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    System.out.println(error);
+//                                }
+//                            }){
+//                                @Override
+//                                public byte[] getBody() {
+//                                    JSONObject jsonBody3 = new JSONObject();
+//                                    try {
+//                                        jsonBody3.put("target", targetText);
+////                                        jsonBody3.put("user", "bot01");
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    String requestBody2 = jsonBody3.toString();
+//                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
+//                                }
+//                            };
+//
+//                            queue.add(stringRequest_jsonXavier);
 
                             //POST_TO_Jetson_Xavier-------------------------------------------------------------
 
@@ -301,17 +302,33 @@ public class DetailFragment extends Fragment {
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.loadUrl(nodeJs_Ip + "/Metaverse_RoboMaster1");
+        String spinner1 = getArguments().getString("spinner1");
+        String student_school = getArguments().getString("school");
+        String student_grade = getArguments().getString("grade");
+        String student_class = getArguments().getString("class");
+        String student_name = getArguments().getString("name");
+
 
         speechButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
                 speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech to text");
                 startActivityForResult(speechIntent, RECOGNIZER_RESULT);
 
                 nowDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
                 System.out.println(nowDate);
+                try {
+                    Log.d("Debug", student_school);
+                    Log.d("Debug", student_grade);
+                    Log.d("Debug", student_class);
+                    Log.d("Debug", student_name);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
 
                 if (checkPermissions() == true) {
 

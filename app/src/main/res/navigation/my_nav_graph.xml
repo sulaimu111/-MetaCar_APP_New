@@ -8,7 +8,20 @@
         android:id="@+id/detailFragment2"
         android:name="com.example.navdemo.DetailFragment"
         android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail" >
+        <argument
+            android:name="spinner1"
+            app:argType="string" />
+        <argument
+            android:name="spinner2"
+            app:argType="string" />
+        <argument
+            android:name="spinner3"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/homeFragment2"
         android:name="com.example.navdemo.HomeFragment"
