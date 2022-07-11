@@ -60,14 +60,14 @@ import java.util.Locale;
 public class DetailFragment extends Fragment {
 
 //    Button button2;
-    TextView textView, textView1, textView2;
+    TextView textView, textView1, textView2, bot_num;
     EditText speechText, editText2;
     ImageButton speechButton;
     String userText, userIpText, targetText, respondText,rasa_response, phone_signal, car_signal, SpeechWord, response_ans, response_bad_ans, res;
     RequestQueue queue;
     Button button1, button2;
     WebView webView;
-    String bot_number = "2";
+    String bot_number = "20";
     String nodeJs_Ip = "http://140.125.32.138:3000";
     String carBot_Ip = "http://140.125.32.128:5000/carbot";
 //    String carBot_Ip = "http://140.125.32.145:5000/carbot";
@@ -131,6 +131,7 @@ public class DetailFragment extends Fragment {
 //            speechText.setText(SpeechWord);
 //            textView2.setText(SpeechWord);
             editText2.setText(SpeechWord);
+
             Log.d("Debug", "student_school = " + student_school);
             try{
                 mediaRecorder = new MediaRecorder();
@@ -314,6 +315,7 @@ public class DetailFragment extends Fragment {
         textView1 = getView().findViewById(R.id.textView4);
         textView2 = getView().findViewById(R.id.textView5);
         editText2 = getView().findViewById(R.id.editText2);
+        bot_num = getView().findViewById(R.id.bot_num);
 //        speechText = findViewById(R.id.editText);
         speechButton = getView().findViewById(R.id.imageButton);
         button1 = getView().findViewById(R.id.button1);
@@ -331,6 +333,7 @@ public class DetailFragment extends Fragment {
         student_class = getArguments().getString("class");
         student_name = getArguments().getString("name");
 
+        bot_num.setText("bot" + bot_number);
 
         speechButton.setOnClickListener(new View.OnClickListener() {
             @Override

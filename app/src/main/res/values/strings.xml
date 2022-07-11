@@ -14,8 +14,9 @@
     <string name="TextView1">Where do you want to go?</string>
     <string name="TextView2" />
     <string name="editText2" >.</string>
-    <string name="name">.</string>
+    <string name="name">請輸入姓名</string>
     <string name="submit">Submit</string>
+    <string name="bot_num">bot_num</string>
     <!--    <string name="spinner">a</string>-->
     <string-array name="spinner1">
         <item>請選擇項目</item>
