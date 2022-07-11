@@ -63,16 +63,17 @@ public class DetailFragment extends Fragment {
     TextView textView, textView1, textView2;
     EditText speechText, editText2;
     ImageButton speechButton;
-    String userText, userIpText, targetText, respondText, SpeechWord;
+    String userText, userIpText, targetText, respondText,rasa_response, phone_signal, car_signal, SpeechWord, response_ans, response_bad_ans, res;
     RequestQueue queue;
     Button button1, button2;
     WebView webView;
+    String bot_number = "2";
     String nodeJs_Ip = "http://140.125.32.138:3000";
-    //    String carBot_Ip = "http://140.125.32.128:5000/carbot";
-    String carBot_Ip = "http://140.125.32.145:5000/carbot";
+    String carBot_Ip = "http://140.125.32.128:5000/carbot";
+//    String carBot_Ip = "http://140.125.32.145:5000/carbot";
     TextToSpeech textToSpeech;
     String nowDate;
-    String student_school, student_grade, student_class;
+    String student_school, student_grade, student_class, student_name;
 
     private static final int RECOGNIZER_RESULT = 1;
     //    private static final String TAG = "MyAppTag";
@@ -130,7 +131,7 @@ public class DetailFragment extends Fragment {
 //            speechText.setText(SpeechWord);
 //            textView2.setText(SpeechWord);
             editText2.setText(SpeechWord);
-//            Log.d(TAG, SpeechWord);
+            Log.d("Debug", "student_school = " + student_school);
             try{
                 mediaRecorder = new MediaRecorder();
                 mediaRecorder.stop();
@@ -154,25 +155,40 @@ public class DetailFragment extends Fragment {
                             // Display the first 500 characters of the response string.
                             System.out.println(response);
 //                                Log.d("brad", response);
-                            String res = response.toString();
+                            res = response.toString();
                             try {
                                 JSONObject resObject = new JSONObject(res);
 //                                userIpText = resObject.getString("user_ip");
-                                respondText = resObject.getString("respond");
-                                targetText = resObject.getString("target");
+//                                respondText = resObject.getString("respond");
+                                rasa_response = resObject.getString("rasa_response");
+                                phone_signal = resObject.getString("phone_signal");
+                                car_signal = resObject.getString("car_signal");
+//                                targetText = resObject.getString("target");
 //                                textView2 = resObject.getString("respond");
+//                                Log.d("Debug", res);
+                                System.out.println("res = " + res);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 //                            Toast.makeText(MainActivity.this, targetText, Toast.LENGTH_SHORT).show();
 //                            Toast.makeText(MainActivity.this, userIpText, Toast.LENGTH_SHORT).show();
 //                            textView.setText(targetText);
-                            textView1.setText(respondText);
-                            int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
+//                            textView1.setText(respondText);
+//                            int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
+                            if(rasa_response.equals("I'm sorry, I didn't quite understand that. Could you repeat that?")){
+                                response_bad_ans = rasa_response;
+                                Toast.makeText(getActivity(), response_bad_ans.toString(), Toast.LENGTH_SHORT).show();
+                                int speech = textToSpeech.speak(response_bad_ans, textToSpeech.QUEUE_FLUSH, null);
+                            }
+                            else{
+                                response_ans = rasa_response;
+                                textView1.setText(rasa_response);
+                                int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
+                            }
 
                             //POST_TO_NODEJS--------------------------------------------------------------------
 
-                            StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest",
+                            StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest" + bot_number,
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
@@ -189,7 +205,7 @@ public class DetailFragment extends Fragment {
                                 public byte[] getBody() throws AuthFailureError {
                                     JSONObject jsonBody2 = new JSONObject();
                                     try {
-                                        jsonBody2.put("target", targetText);
+                                        jsonBody2.put("target", phone_signal);
 //                                        jsonBody2.put("user_ip", userIpText);
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -220,7 +236,8 @@ public class DetailFragment extends Fragment {
 //                                public byte[] getBody() {
 //                                    JSONObject jsonBody3 = new JSONObject();
 //                                    try {
-//                                        jsonBody3.put("target", targetText);
+////                                        jsonBody3.put("target", targetText);
+//                                        jsonBody3.put("target", "response");
 ////                                        jsonBody3.put("user", "bot01");
 //                                    } catch (JSONException e) {
 //                                        e.printStackTrace();
@@ -247,8 +264,14 @@ public class DetailFragment extends Fragment {
                 public byte[] getBody() {
                     JSONObject jsonBody = new JSONObject();
                     try {
+                        jsonBody.put("datetime", nowDate);
                         jsonBody.put("text", SpeechWord);
                         jsonBody.put("user","bot01");
+                        jsonBody.put("school", student_school);
+                        jsonBody.put("grade", student_grade);
+                        jsonBody.put("class", student_class);
+                        jsonBody.put("name", student_name);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -301,12 +324,12 @@ public class DetailFragment extends Fragment {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLoadWithOverviewMode(true);
-        webView.loadUrl(nodeJs_Ip + "/Metaverse_RoboMaster1");
-        String spinner1 = getArguments().getString("spinner1");
-        String student_school = getArguments().getString("school");
-        String student_grade = getArguments().getString("grade");
-        String student_class = getArguments().getString("class");
-        String student_name = getArguments().getString("name");
+        webView.loadUrl(nodeJs_Ip + "/Metaverse_RoboMaster" + bot_number);
+//        String spinner1 = getArguments().getString("spinner1");
+        student_school = getArguments().getString("school");
+        student_grade = getArguments().getString("grade");
+        student_class = getArguments().getString("class");
+        student_name = getArguments().getString("name");
 
 
         speechButton.setOnClickListener(new View.OnClickListener() {
@@ -318,7 +341,8 @@ public class DetailFragment extends Fragment {
                 startActivityForResult(speechIntent, RECOGNIZER_RESULT);
 
                 nowDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-                System.out.println(nowDate);
+//                System.out.println(nowDate);
+                Log.d("Debug", nowDate);
                 try {
                     Log.d("Debug", student_school);
                     Log.d("Debug", student_grade);
@@ -373,7 +397,7 @@ public class DetailFragment extends Fragment {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("Debug", nowDate);
+//                Log.d("Debug", nowDate);
                 // Request a string response from the provided URL.
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, carBot_Ip,
                         null,
@@ -383,25 +407,40 @@ public class DetailFragment extends Fragment {
                                 // Display the first 500 characters of the response string.
                                 System.out.println(response);
 //                                Log.d("brad", response);
-                                String res = response.toString();
+                                res = response.toString();
                                 try {
                                     JSONObject resObject = new JSONObject(res);
-//                                    userIpText = resObject.getString("user_ip");
-                                    respondText = resObject.getString("respond");
-                                    targetText = resObject.getString("target");
-                                    editText2.setText("");
+//                                userIpText = resObject.getString("user_ip");
+//                                respondText = resObject.getString("respond");
+                                    rasa_response = resObject.getString("rasa_response");
+                                    phone_signal = resObject.getString("phone_signal");
+                                    car_signal = resObject.getString("car_signal");
+//                                targetText = resObject.getString("target");
+//                                textView2 = resObject.getString("respond");
+//                                Log.d("Debug", res);
+                                    System.out.println("res = " + res);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-//                                Toast.makeText(MainActivity.this, targetText, Toast.LENGTH_SHORT).show();
-//                                Toast.makeText(MainActivity.this, userIpText, Toast.LENGTH_SHORT).show();
-//                                textView.setText(targetText);
-                                textView1.setText(respondText);
-                                int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
+//                            Toast.makeText(MainActivity.this, targetText, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(MainActivity.this, userIpText, Toast.LENGTH_SHORT).show();
+//                            textView.setText(targetText);
+//                            textView1.setText(respondText);
+//                            int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
+                                if(rasa_response.equals("I'm sorry, I didn't quite understand that. Could you repeat that?")){
+                                    response_bad_ans = rasa_response;
+                                    Toast.makeText(getActivity(), response_bad_ans.toString(), Toast.LENGTH_SHORT).show();
+                                    int speech = textToSpeech.speak(response_bad_ans, textToSpeech.QUEUE_FLUSH, null);
+                                }
+                                else{
+                                    response_ans = rasa_response;
+                                    textView1.setText(rasa_response);
+                                    int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
+                                }
 
                                 //POST_TO_NODEJS--------------------------------------------------------------------
 
-                                StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest",
+                                StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest"  + bot_number,
                                         new Response.Listener<String>() {
                                             @Override
                                             public void onResponse(String response) {
@@ -411,15 +450,15 @@ public class DetailFragment extends Fragment {
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
                                         System.out.println(error);
-//                                        Toast.makeText(DetailFragment.this, error.toString(), Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
                                     }
                                 }){
                                     @Override
                                     public byte[] getBody() throws AuthFailureError {
                                         JSONObject jsonBody2 = new JSONObject();
                                         try {
-                                            jsonBody2.put("target", targetText);
-                                            jsonBody2.put("user_ip", userIpText);
+                                            jsonBody2.put("target", phone_signal);
+//                                        jsonBody2.put("user_ip", userIpText);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -433,33 +472,34 @@ public class DetailFragment extends Fragment {
 
                                 //POST_TO_Jetson_Xavier-------------------------------------------------------------
 
-//                                JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
-//                                        new Response.Listener<JSONObject>() {
-//                                            @Override
-//                                            public void onResponse(JSONObject response) {
-//                                                System.out.println(response);
-//                                            }
-//                                        }, new Response.ErrorListener() {
-//                                    @Override
-//                                    public void onErrorResponse(VolleyError error) {
-//                                        System.out.println(error);
-//                                    }
-//                                }){
-//                                    @Override
-//                                    public byte[] getBody() {
-//                                        JSONObject jsonBody3 = new JSONObject();
-//                                        try {
-//                                            jsonBody3.put("target", targetText);
-////                                        jsonBody3.put("user", "bot01");
-//                                        } catch (JSONException e) {
-//                                            e.printStackTrace();
+//                            JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
+//                                    new Response.Listener<JSONObject>() {
+//                                        @Override
+//                                        public void onResponse(JSONObject response) {
+//                                            System.out.println(response);
 //                                        }
-//                                        String requestBody2 = jsonBody3.toString();
-//                                        return  requestBody2.getBytes(StandardCharsets.UTF_8);
+//                                    }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    System.out.println(error);
+//                                }
+//                            }){
+//                                @Override
+//                                public byte[] getBody() {
+//                                    JSONObject jsonBody3 = new JSONObject();
+//                                    try {
+////                                        jsonBody3.put("target", targetText);
+//                                        jsonBody3.put("target", "response");
+////                                        jsonBody3.put("user", "bot01");
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
 //                                    }
-//                                };
+//                                    String requestBody2 = jsonBody3.toString();
+//                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
+//                                }
+//                            };
 //
-//                                queue.add(stringRequest_jsonXavier);
+//                            queue.add(stringRequest_jsonXavier);
 
                                 //POST_TO_Jetson_Xavier-------------------------------------------------------------
 
@@ -468,7 +508,7 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         System.out.println(error);
-//                        textView.setText("That didn't work!");
+//                    textView.setText("That didn't work!");
                     }
                 })
                 {
@@ -476,9 +516,13 @@ public class DetailFragment extends Fragment {
                     public byte[] getBody() {
                         JSONObject jsonBody = new JSONObject();
                         try {
-                            System.out.println(editText2.getText().toString());
-                            jsonBody.put("text", editText2.getText().toString());
+                            jsonBody.put("datetime", nowDate);
+                            jsonBody.put("text", SpeechWord);
                             jsonBody.put("user","bot01");
+                            jsonBody.put("school", student_school);
+                            jsonBody.put("grade", student_grade);
+                            jsonBody.put("class", student_class);
+                            jsonBody.put("name", student_name);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
