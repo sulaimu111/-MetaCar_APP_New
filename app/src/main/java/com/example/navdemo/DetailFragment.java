@@ -13,6 +13,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -83,6 +84,9 @@ public class DetailFragment extends Fragment {
     int total_score = 0;
     int count_time = 0;
     int avg_score = 0;
+    Integer count = 0;
+
+    SpeechRecognizer speechRecognizer;
 
     private static final int RECOGNIZER_RESULT = 1;
     //    private static final String TAG = "MyAppTag";
@@ -132,236 +136,236 @@ public class DetailFragment extends Fragment {
 
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == RECOGNIZER_RESULT && resultCode == Activity.RESULT_OK){
-            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            SpeechWord = matches.get(0).toString();
-//            speechText.setText(SpeechWord);
-//            textView2.setText(SpeechWord);
-            editText2.setText(SpeechWord);
-
-
-            Log.d("Debug", "student_school = " + student_school);
-            try{
-                mediaRecorder = new MediaRecorder();
-                mediaRecorder.stop();
-                mediaRecorder.release();
-            }catch (Exception e){
-                System.out.println(e);
-            }
-
-//                Toast.makeText(MainActivity.this, "Recording stopped", Toast.LENGTH_SHORT).show();
-
-//            File file = new File(Environment.getExternalStorageDirectory() + "/Miaudio.mp3");
-//            byte[] bytes = new byte[0];
-//            bytes = FileUtils.readFileToByteArray(file);
-
-            // Request a string response from the provided URL.
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, carBot_Ip,
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            // Display the first 500 characters of the response string.
-                            System.out.println(response);
-//                                Log.d("brad", response);
-                            res = response.toString();
-                            try {
-                                JSONObject resObject = new JSONObject(res);
-//                                respondText = resObject.getString("respond");
-                                rasa_response = resObject.getString("rasa_response");
-                                phone_signal = resObject.getString("phone_signal");
-                                car_signal = resObject.getString("car_signal");
-                                score = resObject.getString("score");
-                                int_score = Integer.parseInt(score);
-                                cheat_word = resObject.getString("rasa_response");
-//                                targetText = resObject.getString("target");
-//                                textView2 = resObject.getString("respond");
-//                                Log.d("Debug", res);
-                                System.out.println("res = " + res);
-                                userIpText = resObject.getString("user_ip");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-//                            Toast.makeText(MainActivity.this, targetText, Toast.LENGTH_SHORT).show();
-//                            Toast.makeText(MainActivity.this, userIpText, Toast.LENGTH_SHORT).show();
-//                            textView.setText(targetText);
-//                            textView1.setText(respondText);
-//                            int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
-                            if(rasa_response.equals("I'm sorry, I didn't quite understand that. Could you repeat that?")){
-                                response_bad_ans = rasa_response;
-                                Toast.makeText(getActivity(), response_bad_ans.toString(), Toast.LENGTH_SHORT).show();
-                                int speech = textToSpeech.speak(response_bad_ans, textToSpeech.QUEUE_FLUSH, null);
-                            }
-                            else{
-                                response_ans = rasa_response;
-                                textView1.setText(rasa_response);
-                                int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
-
-                                total_speech_word = total_speech_word + "." + SpeechWord;
-                                System.out.println("total_speech_word = " + total_speech_word);
-                                total_score = total_score + int_score;
-                                System.out.println("total_score = " + total_score);
-                                count_time = count_time + 1;
-                                System.out.println("count_time = " + count_time);
-                            }
-
-                            System.out.println(rasa_response);
-
-                            if(phone_signal.equals("111") || phone_signal.equals("222") || phone_signal.equals("333")){
-                                System.out.println("finish");
-                                avg_score = total_score / count_time;
-                                System.out.println("avg_score = " + avg_score);
-
-                                //POST_TO_Carbot_result-------------------------------------------------------------
-
-                                JsonObjectRequest stringRequest_Carbot_result = new JsonObjectRequest(Request.Method.POST, carBot_Ip,null,
-                                        new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-                                                System.out.println(response);
-                                            }
-                                        }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        System.out.println(error);
-                                    }
-                                }){
-                                    @Override
-                                    public byte[] getBody() {
-                                        JSONObject jsonBody5 = new JSONObject();
-                                        try {
-//                                        jsonBody3.put("target", targetText);
-//                                            jsonBody5.put("SpeechWord", SpeechWord);
-                                            jsonBody5.put("avg_score", avg_score);
-                                            jsonBody5.put("total_speech_word", total_speech_word);
-                                            jsonBody5.put("datetime", nowDate);
-                                            jsonBody5.put("text", SpeechWord);
-                                            jsonBody5.put("user","bot01");
-                                            jsonBody5.put("school", student_school);
-                                            jsonBody5.put("grade", student_grade);
-                                            jsonBody5.put("class", student_class);
-                                            jsonBody5.put("name", student_name);
-                                            jsonBody5.put("cheat_word", cheat_word);
-//                                        jsonBody3.put("user", "bot01");
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                        String requestBody3 = jsonBody5.toString();
-                                        return  requestBody3.getBytes(StandardCharsets.UTF_8);
-                                    }
-                                };
-
-                                queue.add(stringRequest_Carbot_result);
-
-                                //POST_TO_Carbot_result-------------------------------------------------------------
-                            }
-
-
-                            //POST_TO_NODEJS--------------------------------------------------------------------
-
-                            StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest" + bot_number,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            System.out.println(response);
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    System.out.println(error);
-//                                    Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
-                                }
-                            }){
-                                @Override
-                                public byte[] getBody() throws AuthFailureError {
-                                    JSONObject jsonBody2 = new JSONObject();
-                                    try {
-                                        jsonBody2.put("target", phone_signal);
-//                                        jsonBody2.put("user_ip", userIpText);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    String requestBody2 = jsonBody2.toString();
-                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
-                                }
-                            };
-                            queue.add(stringRequest_nodejs);
-
-                            //POST_TO_NODEJS--------------------------------------------------------------------
-
-                            //POST_TO_Jetson_Xavier-------------------------------------------------------------
-
-                            JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
-                                    new Response.Listener<JSONObject>() {
-                                        @Override
-                                        public void onResponse(JSONObject response) {
-                                            car_signal = "";
-                                            System.out.println(response);
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    System.out.println(error);
-                                }
-                            }){
-                                @Override
-                                public byte[] getBody() {
-                                    JSONObject jsonBody3 = new JSONObject();
-                                    try {
-//                                        jsonBody3.put("target", targetText);
-                                        jsonBody3.put("target", car_signal);
-//                                        jsonBody3.put("user", "bot01");
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    String requestBody2 = jsonBody3.toString();
-                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
-                                }
-                            };
-
-                            queue.add(stringRequest_jsonXavier);
-
-                            //POST_TO_Jetson_Xavier-------------------------------------------------------------
-
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    System.out.println(error);
-//                    textView.setText("That didn't work!");
-                }
-            })
-            {
-                @Override
-                public byte[] getBody() {
-                    JSONObject jsonBody = new JSONObject();
-                    try {
-//                        jsonBody.put("avg_score", 50);
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        if(requestCode == RECOGNIZER_RESULT && resultCode == Activity.RESULT_OK){
+//            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+//            SpeechWord = matches.get(0).toString();
+////            speechText.setText(SpeechWord);
+////            textView2.setText(SpeechWord);
+//            editText2.setText(SpeechWord);
+//
+//
+//            Log.d("Debug", "student_school = " + student_school);
+//            try{
+//                mediaRecorder = new MediaRecorder();
+//                mediaRecorder.stop();
+//                mediaRecorder.release();
+//            }catch (Exception e){
+//                System.out.println(e);
+//            }
+//
+////                Toast.makeText(MainActivity.this, "Recording stopped", Toast.LENGTH_SHORT).show();
+//
+////            File file = new File(Environment.getExternalStorageDirectory() + "/Miaudio.mp3");
+////            byte[] bytes = new byte[0];
+////            bytes = FileUtils.readFileToByteArray(file);
+//
+//            // Request a string response from the provided URL.
+//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, carBot_Ip,
+//                    null,
+//                    new Response.Listener<JSONObject>() {
+//                        @Override
+//                        public void onResponse(JSONObject response) {
+//                            // Display the first 500 characters of the response string.
+//                            System.out.println(response);
+////                                Log.d("brad", response);
+//                            res = response.toString();
+//                            try {
+//                                JSONObject resObject = new JSONObject(res);
+////                                respondText = resObject.getString("respond");
+//                                rasa_response = resObject.getString("rasa_response");
+//                                phone_signal = resObject.getString("phone_signal");
+//                                car_signal = resObject.getString("car_signal");
+//                                score = resObject.getString("score");
+//                                int_score = Integer.parseInt(score);
+//                                cheat_word = resObject.getString("rasa_response");
+////                                targetText = resObject.getString("target");
+////                                textView2 = resObject.getString("respond");
+////                                Log.d("Debug", res);
+//                                System.out.println("res = " + res);
+//                                userIpText = resObject.getString("user_ip");
+//
+//                            } catch (JSONException e) {
+//                                e.printStackTrace();
+//                            }
+////                            Toast.makeText(MainActivity.this, targetText, Toast.LENGTH_SHORT).show();
+////                            Toast.makeText(MainActivity.this, userIpText, Toast.LENGTH_SHORT).show();
+////                            textView.setText(targetText);
+////                            textView1.setText(respondText);
+////                            int speech = textToSpeech.speak(respondText, textToSpeech.QUEUE_FLUSH, null);
+//                            if(rasa_response.equals("I'm sorry, I didn't quite understand that. Could you repeat that?")){
+//                                response_bad_ans = rasa_response;
+//                                Toast.makeText(getActivity(), response_bad_ans.toString(), Toast.LENGTH_SHORT).show();
+//                                int speech = textToSpeech.speak(response_bad_ans, textToSpeech.QUEUE_FLUSH, null);
+//                            }
+//                            else{
+//                                response_ans = rasa_response;
+//                                textView1.setText(rasa_response);
+//                                int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
+//
+//                                total_speech_word = total_speech_word + "." + SpeechWord;
+//                                System.out.println("total_speech_word = " + total_speech_word);
+//                                total_score = total_score + int_score;
+//                                System.out.println("total_score = " + total_score);
+//                                count_time = count_time + 1;
+//                                System.out.println("count_time = " + count_time);
+//                            }
+//
+//                            System.out.println(rasa_response);
+//
+//                            if(phone_signal.equals("111") || phone_signal.equals("222") || phone_signal.equals("333")){
+//                                System.out.println("finish");
+//                                avg_score = total_score / count_time;
+//                                System.out.println("avg_score = " + avg_score);
+//
+//                                //POST_TO_Carbot_result-------------------------------------------------------------
+//
+//                                JsonObjectRequest stringRequest_Carbot_result = new JsonObjectRequest(Request.Method.POST, carBot_Ip,null,
+//                                        new Response.Listener<JSONObject>() {
+//                                            @Override
+//                                            public void onResponse(JSONObject response) {
+//                                                System.out.println(response);
+//                                            }
+//                                        }, new Response.ErrorListener() {
+//                                    @Override
+//                                    public void onErrorResponse(VolleyError error) {
+//                                        System.out.println(error);
+//                                    }
+//                                }){
+//                                    @Override
+//                                    public byte[] getBody() {
+//                                        JSONObject jsonBody5 = new JSONObject();
+//                                        try {
+////                                        jsonBody3.put("target", targetText);
+////                                            jsonBody5.put("SpeechWord", SpeechWord);
+//                                            jsonBody5.put("avg_score", avg_score);
+//                                            jsonBody5.put("total_speech_word", total_speech_word);
+//                                            jsonBody5.put("datetime", nowDate);
+//                                            jsonBody5.put("text", SpeechWord);
+//                                            jsonBody5.put("user","bot01");
+//                                            jsonBody5.put("school", student_school);
+//                                            jsonBody5.put("grade", student_grade);
+//                                            jsonBody5.put("class", student_class);
+//                                            jsonBody5.put("name", student_name);
+//                                            jsonBody5.put("cheat_word", cheat_word);
+////                                        jsonBody3.put("user", "bot01");
+//                                        } catch (JSONException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        String requestBody3 = jsonBody5.toString();
+//                                        return  requestBody3.getBytes(StandardCharsets.UTF_8);
+//                                    }
+//                                };
+//
+//                                queue.add(stringRequest_Carbot_result);
+//
+//                                //POST_TO_Carbot_result-------------------------------------------------------------
+//                            }
+//
+//
+//                            //POST_TO_NODEJS--------------------------------------------------------------------
+//
+//                            StringRequest stringRequest_nodejs = new StringRequest(Request.Method.POST, nodeJs_Ip + "/posttest" + bot_number,
+//                                    new Response.Listener<String>() {
+//                                        @Override
+//                                        public void onResponse(String response) {
+//                                            System.out.println(response);
+//                                        }
+//                                    }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    System.out.println(error);
+////                                    Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+//                                }
+//                            }){
+//                                @Override
+//                                public byte[] getBody() throws AuthFailureError {
+//                                    JSONObject jsonBody2 = new JSONObject();
+//                                    try {
+//                                        jsonBody2.put("target", phone_signal);
+////                                        jsonBody2.put("user_ip", userIpText);
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    String requestBody2 = jsonBody2.toString();
+//                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
+//                                }
+//                            };
+//                            queue.add(stringRequest_nodejs);
+//
+//                            //POST_TO_NODEJS--------------------------------------------------------------------
+//
+//                            //POST_TO_Jetson_Xavier-------------------------------------------------------------
+//
+//                            JsonObjectRequest stringRequest_jsonXavier = new JsonObjectRequest(Request.Method.POST, userIpText,null,
+//                                    new Response.Listener<JSONObject>() {
+//                                        @Override
+//                                        public void onResponse(JSONObject response) {
+//                                            car_signal = "";
+//                                            System.out.println(response);
+//                                        }
+//                                    }, new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    System.out.println(error);
+//                                }
+//                            }){
+//                                @Override
+//                                public byte[] getBody() {
+//                                    JSONObject jsonBody3 = new JSONObject();
+//                                    try {
+////                                        jsonBody3.put("target", targetText);
+//                                        jsonBody3.put("target", car_signal);
+////                                        jsonBody3.put("user", "bot01");
+//                                    } catch (JSONException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    String requestBody2 = jsonBody3.toString();
+//                                    return  requestBody2.getBytes(StandardCharsets.UTF_8);
+//                                }
+//                            };
+//
+//                            queue.add(stringRequest_jsonXavier);
+//
+//                            //POST_TO_Jetson_Xavier-------------------------------------------------------------
+//
+//                        }
+//                    }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//                    System.out.println(error);
+////                    textView.setText("That didn't work!");
+//                }
+//            })
+//            {
+//                @Override
+//                public byte[] getBody() {
+//                    JSONObject jsonBody = new JSONObject();
+//                    try {
+////                        jsonBody.put("avg_score", 50);
+////                        jsonBody.put("cheat_word", cheat_word);
+//                        jsonBody.put("text", SpeechWord);
+//                        jsonBody.put("datetime", nowDate);
+//                        jsonBody.put("user","bot01");
+//                        jsonBody.put("school", student_school);
+//                        jsonBody.put("grade", student_grade);
+//                        jsonBody.put("class", student_class);
+//                        jsonBody.put("name", student_name);
 //                        jsonBody.put("cheat_word", cheat_word);
-                        jsonBody.put("text", SpeechWord);
-                        jsonBody.put("datetime", nowDate);
-                        jsonBody.put("user","bot01");
-                        jsonBody.put("school", student_school);
-                        jsonBody.put("grade", student_grade);
-                        jsonBody.put("class", student_class);
-                        jsonBody.put("name", student_name);
-                        jsonBody.put("cheat_word", cheat_word);
-                        System.out.println("cheat_word = " + cheat_word);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    String requestBody = jsonBody.toString();
-                    return requestBody.getBytes(StandardCharsets.UTF_8);
-                }
-            };
-            // Add the request to the RequestQueue.
-            queue.add(jsonObjectRequest);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+//                        System.out.println("cheat_word = " + cheat_word);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    String requestBody = jsonBody.toString();
+//                    return requestBody.getBytes(StandardCharsets.UTF_8);
+//                }
+//            };
+//            // Add the request to the RequestQueue.
+//            queue.add(jsonObjectRequest);
+//        }
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -412,54 +416,80 @@ public class DetailFragment extends Fragment {
 
         bot_num.setText("bot" + bot_number);
 
+        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+        }
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getActivity());
+
+        final Intent speechRecognizerInetent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
         speechButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US");
-                speechIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speech to text");
-                startActivityForResult(speechIntent, RECOGNIZER_RESULT);
 
-                nowDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
-//                System.out.println(nowDate);
-                Log.d("Debug", nowDate);
-                try {
-                    Log.d("Debug", student_school);
-                    Log.d("Debug", student_grade);
-                    Log.d("Debug", student_class);
-                    Log.d("Debug", student_name);
-                }catch (Exception e) {
-                    e.printStackTrace();
+                if(count == 0){
+                    speechButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_mic_24));
+
+                    //startlistening
+                    speechRecognizer.startListening(speechRecognizerInetent);
+                    count = 1;
                 }
+                else{
+                    speechButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_mic_off_24));
 
-
-
-                if (checkPermissions() == true) {
-
-//                    AudioSavaPath = Environment.getExternalStorageDirectory().getAbsolutePath()
-//                            +"/"+"recordingAudio.wav";
-
-                    mediaRecorder = new MediaRecorder();
-                    mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                    mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                    mediaRecorder.setOutputFile(getFilePath());
-
-                    try {
-                        mediaRecorder.prepare();
-                        mediaRecorder.start();
-//                        Toast.makeText(MainActivity.this, DetailFragment.class, "Recording started", Toast.LENGTH_SHORT).show();
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    //stoplistening
+                    speechRecognizer.stopListening();
+                    count = 0;
                 }
-//                else {
-//
-//                    ActivityCompat.requestPermissions(getActivity().DetailFragment.this, DetailFragment.class,new String[]{
-//                            Manifest.permission.RECORD_AUDIO,Manifest.permission.WRITE_EXTERNAL_STORAGE
-//                    },1);
-//                }
+            }
+        });
+
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle bundle) {
+
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+
+            }
+
+            @Override
+            public void onRmsChanged(float v) {
+
+            }
+
+            @Override
+            public void onBufferReceived(byte[] bytes) {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+
+            }
+
+            @Override
+            public void onError(int i) {
+
+            }
+
+            @Override
+            public void onResults(Bundle bundle) {
+                ArrayList<String> data = bundle.getStringArrayList(speechRecognizer.RESULTS_RECOGNITION);
+                editText2.setText(data.get(0));
+            }
+
+            @Override
+            public void onPartialResults(Bundle bundle) {
+
+            }
+
+            @Override
+            public void onEvent(int i, Bundle bundle) {
+
             }
         });
 
@@ -478,6 +508,9 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 //                Log.d("Debug", nowDate);
+                nowDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+//                System.out.println(nowDate);
+                Log.d("Debug", nowDate);
                 SpeechWord = editText2.getText().toString();
                 // Request a string response from the provided URL.
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, carBot_Ip,
@@ -522,7 +555,7 @@ public class DetailFragment extends Fragment {
                                     textView1.setText(rasa_response);
                                     int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
 
-                                    total_speech_word = total_speech_word + "." + SpeechWord;
+                                    total_speech_word = total_speech_word + SpeechWord + "." ;
                                     System.out.println("total_speech_word = " + total_speech_word);
                                     total_score = total_score + int_score;
                                     System.out.println("total_score = " + total_score);
@@ -694,11 +727,17 @@ public class DetailFragment extends Fragment {
         return first == PackageManager.PERMISSION_GRANTED &&
                 second == PackageManager.PERMISSION_GRANTED;
     }
-    private String getFilePath() {
-        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
-        File musicDirectory = contextWrapper.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-        File file = new File(musicDirectory, nowDate + ".wav");
-        return file.getPath();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getActivity(), "Permission Granted", Toast.LENGTH_SHORT);
+            }
+            else{
+                Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT);
+            }
+        }
     }
 }
 
