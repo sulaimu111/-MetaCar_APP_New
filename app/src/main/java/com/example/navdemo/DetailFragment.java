@@ -71,12 +71,12 @@ public class DetailFragment extends Fragment {
     RequestQueue queue;
     Button button1, button2;
     WebView webView;
-    String bot_number = "1";
+    String bot_number = "6";
     String nodeJs_Ip = "http://140.125.32.138:3000";
     String carBot_Ip = "http://140.125.32.128:5000/carbot";
 //    String carBot_Ip = "http://140.125.32.145:5000/carbot";
     TextToSpeech textToSpeech;
-    String nowDate;
+    String nowDate_date, nowDate_time;
     String student_school, student_grade, student_class, student_name;
     String total_speech_word = "";
     String score, cheat_word;
@@ -508,9 +508,10 @@ public class DetailFragment extends Fragment {
             @Override
             public void onClick(View view) {
 //                Log.d("Debug", nowDate);
-                nowDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date());
+                nowDate_date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+                nowDate_time = new SimpleDateFormat("HH-mm-ss").format(new Date());
 //                System.out.println(nowDate);
-                Log.d("Debug", nowDate);
+//                Log.d("Debug", nowDate);
                 SpeechWord = editText2.getText().toString();
                 // Request a string response from the provided URL.
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, carBot_Ip,
@@ -592,7 +593,8 @@ public class DetailFragment extends Fragment {
 //                                            jsonBody5.put("SpeechWord", SpeechWord);
                                                 jsonBody5.put("avg_score", avg_score);
                                                 jsonBody5.put("total_speech_word", total_speech_word);
-                                                jsonBody5.put("datetime", nowDate);
+                                                jsonBody5.put("date", nowDate_date);
+                                                jsonBody5.put("time", nowDate_time);
                                                 jsonBody5.put("text", SpeechWord);
                                                 jsonBody5.put("user","bot01");
                                                 jsonBody5.put("school", student_school);
@@ -696,7 +698,8 @@ public class DetailFragment extends Fragment {
 //                        jsonBody.put("avg_score", 50);
 //                        jsonBody.put("cheat_word", cheat_word);
                             jsonBody.put("text", SpeechWord);
-                            jsonBody.put("datetime", nowDate);
+                            jsonBody.put("date", nowDate_date);
+                            jsonBody.put("time", nowDate_time);
                             jsonBody.put("user","bot01");
                             jsonBody.put("school", student_school);
                             jsonBody.put("grade", student_grade);
