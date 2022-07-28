@@ -30,6 +30,8 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
     Button button;
     String choice, choice1, choice2, choice3;
     EditText editTextName;
+    TextView bot_num1;
+    String bot_number = "5";
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -71,7 +73,6 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-
     }
 
     @Override
@@ -108,6 +109,11 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
 
         editTextName = getView().findViewById(R.id.editTextName);
 
+        bot_num1 = getView().findViewById(R.id.textView8);
+        bot_num1.setText("bot" + bot_number);
+
+
+
 
     }
 
@@ -116,12 +122,13 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
 
         choice = adapterView.getItemAtPosition(i).toString();
 
+
         try {
             if(choice.equals("溝壩國小") || choice.equals("斗南國小")){
                 choice1 = choice;
 //                Log.d("Debug", "choice1");
             }
-            else if(choice.equals("三年級") || choice.equals("四年級") || choice.equals("五年級")){
+            else if(choice.equals("一年級") ||choice.equals("二年級") ||choice.equals("三年級") || choice.equals("四年級") || choice.equals("五年級") || choice.equals("六年級")){
                 choice2 = choice;
 //                Log.d("Debug", "choice2");
             }
@@ -168,6 +175,7 @@ public class HomeFragment extends Fragment implements AdapterView.OnItemSelected
                     bundle.putString("grade", choice2);
                     bundle.putString("class", choice3);
                     bundle.putString("name", editTextName.getText().toString());
+                    bundle.putString("bot_number", bot_number);
                     NavController controller = Navigation.findNavController(view);
                     controller.navigate(R.id.action_homeFragment2_to_detailFragment2, bundle);
                 }

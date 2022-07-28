@@ -21,6 +21,11 @@
         <argument
             android:name="name"
             app:argType="string" />
+        <action
+            android:id="@+id/action_detailFragment2_to_homeFragment22"
+            app:destination="@id/homeFragment2" />
+        <argument android:name="bot_number"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment2"

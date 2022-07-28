@@ -12,22 +12,26 @@
     <!--    <string name="button2">Go to the restaurant</string>-->
     <string name="talk_background">talk_background</string>
     <string name="TextView1">Where do you want to go?</string>
-    <string name="TextView2" />
+    <string name="TextView2"> </string>
     <string name="editText2" >.</string>
     <string name="name">請輸入姓名</string>
     <string name="submit">Submit</string>
     <string name="bot_num">bot_num</string>
+    <string name="btn_setting">btn_setting</string>
     <!--    <string name="spinner">a</string>-->
     <string-array name="spinner1">
         <item>請選擇項目</item>
         <item>溝壩國小</item>
-        <item>斗南國小</item>
+<!--        <item>斗南國小</item>-->
     </string-array>
     <string-array name="spinner2">
         <item>請選擇項目</item>
+        <item>一年級</item>
+        <item>二年級</item>
         <item>三年級</item>
         <item>四年級</item>
         <item>五年級</item>
+        <item>六年級</item>
     </string-array>
     <string-array name="spinner3">
         <item>請選擇項目</item>

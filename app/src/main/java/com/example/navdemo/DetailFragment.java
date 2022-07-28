@@ -64,14 +64,14 @@ import java.util.Locale;
 public class DetailFragment extends Fragment {
 
 //    Button button2;
-    TextView textView, textView1, textView2, bot_num;
-    EditText speechText, editText2;
+    TextView textView, textView1, textView2, bot_num, editText2;
+//    EditText speechText, editText2;
     ImageButton speechButton;
     String userText, userIpText, targetText, respondText,rasa_response, phone_signal = "", car_signal, SpeechWord, response_ans, response_bad_ans, res;
     RequestQueue queue;
     Button button1, button2;
     WebView webView;
-    String bot_number = "6";
+    String bot_number;
     String nodeJs_Ip = "http://140.125.32.138:3000";
     String carBot_Ip = "http://140.125.32.128:5000/carbot";
 //    String carBot_Ip = "http://140.125.32.145:5000/carbot";
@@ -79,6 +79,7 @@ public class DetailFragment extends Fragment {
     String nowDate_date, nowDate_time;
     String student_school, student_grade, student_class, student_name;
     String total_speech_word = "";
+    String total_rasa_response = "";
     String score, cheat_word;
     int int_score = 0;
     int total_score = 0;
@@ -393,9 +394,16 @@ public class DetailFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        student_school = getArguments().getString("school");
+        student_grade = getArguments().getString("grade");
+        student_class = getArguments().getString("class");
+        student_name = getArguments().getString("name");
+        bot_number = getArguments().getString("bot_number");
+
         textView1 = getView().findViewById(R.id.textView4);
         textView2 = getView().findViewById(R.id.textView5);
-        editText2 = getView().findViewById(R.id.editText2);
+        editText2 = getView().findViewById(R.id.textView2);
         bot_num = getView().findViewById(R.id.bot_num);
 //        speechText = findViewById(R.id.editText);
         speechButton = getView().findViewById(R.id.imageButton);
@@ -409,10 +417,7 @@ public class DetailFragment extends Fragment {
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.loadUrl(nodeJs_Ip + "/Metaverse_RoboMaster" + bot_number);
 //        String spinner1 = getArguments().getString("spinner1");
-        student_school = getArguments().getString("school");
-        student_grade = getArguments().getString("grade");
-        student_class = getArguments().getString("class");
-        student_name = getArguments().getString("name");
+
 
         bot_num.setText("bot" + bot_number);
 
@@ -468,7 +473,12 @@ public class DetailFragment extends Fragment {
 
             @Override
             public void onEndOfSpeech() {
+//                System.out.println("eeeeeeeeeeeeeeeeeeennnnnnnnnnnnnnnnnddddddddddddddd");
+                speechButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_mic_off_24));
 
+                //stoplistening
+                speechRecognizer.stopListening();
+                count = 0;
             }
 
             @Override
@@ -555,7 +565,8 @@ public class DetailFragment extends Fragment {
                                     response_ans = rasa_response;
                                     textView1.setText(rasa_response);
                                     int speech = textToSpeech.speak(rasa_response, textToSpeech.QUEUE_FLUSH, null);
-
+                                    total_rasa_response = total_rasa_response + rasa_response + ".";
+                                    System.out.println("total_rasa_response = " + total_rasa_response);
                                     total_speech_word = total_speech_word + SpeechWord + "." ;
                                     System.out.println("total_speech_word = " + total_speech_word);
                                     total_score = total_score + int_score;
@@ -593,10 +604,11 @@ public class DetailFragment extends Fragment {
 //                                            jsonBody5.put("SpeechWord", SpeechWord);
                                                 jsonBody5.put("avg_score", avg_score);
                                                 jsonBody5.put("total_speech_word", total_speech_word);
+                                                jsonBody5.put("total_rasa_response", total_rasa_response);
                                                 jsonBody5.put("date", nowDate_date);
                                                 jsonBody5.put("time", nowDate_time);
                                                 jsonBody5.put("text", SpeechWord);
-                                                jsonBody5.put("user","bot01");
+                                                jsonBody5.put("user","bot0" + bot_number);
                                                 jsonBody5.put("school", student_school);
                                                 jsonBody5.put("grade", student_grade);
                                                 jsonBody5.put("class", student_class);
@@ -700,7 +712,7 @@ public class DetailFragment extends Fragment {
                             jsonBody.put("text", SpeechWord);
                             jsonBody.put("date", nowDate_date);
                             jsonBody.put("time", nowDate_time);
-                            jsonBody.put("user","bot01");
+                            jsonBody.put("user","bot0" + bot_number);
                             jsonBody.put("school", student_school);
                             jsonBody.put("grade", student_grade);
                             jsonBody.put("class", student_class);

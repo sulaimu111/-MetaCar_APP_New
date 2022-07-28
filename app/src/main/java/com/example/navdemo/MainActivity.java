@@ -15,4 +15,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        NavController controller = Navigation.findNavController(this, R.id.fragmentContainerView);
+        NavigationUI.setupActionBarWithNavController(this, controller);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController controller = Navigation.findNavController(this, R.id.fragmentContainerView);
+        return controller.navigateUp();
+//        return super.onSupportNavigateUp();
+    }
 }
